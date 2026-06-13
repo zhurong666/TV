@@ -5,6 +5,7 @@ minSdk = "24"
 targetSdk = "37"
 compileSdk = "37"
 media3 = "1.10.1"
+nextlib = "1.10.0-0.12.1"
 
 annotation = "1.10.0"
 appcompat = "1.7.1"
@@ -113,6 +114,8 @@ media3-session = { group = "androidx.media3", name = "media3-session", version.r
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 media3-datasource = { group = "androidx.media3", name = "media3-datasource", version.ref = "media3" }
 media3-datasource-okhttp = { group = "androidx.media3", name = "media3-datasource-okhttp", version.ref = "media3" }
+nextlib-media3ext = { group = "io.github.anilbeesetti", name = "nextlib-media3ext", version.ref = "nextlib" }
+nextlib-mediainfo = { group = "io.github.anilbeesetti", name = "nextlib-mediainfo", version.ref = "nextlib" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -123,5 +126,5 @@ chaquo-python = { id = "com.chaquo.python", version.ref = "python" }
 glide = ["glide", "glide-annotations", "glide-avif-integration", "glide-okhttp3-integration"]
 jupnp = ["org-jupnp", "org-jupnp-android", "org-jupnp-support"]
 okhttp = ["okhttp", "okhttp-dnsoverhttps", "okhttp-logging-interceptor"]
-media3 = ["media3-common", "media3-exoplayer", "media3-session", "media3-ui", "media3-datasource", "media3-datasource-okhttp"]
+media3 = ["media3-common", "media3-exoplayer", "media3-session", "media3-ui", "media3-datasource", "media3-datasource-okhttp", "nextlib-media3ext", "nextlib-mediainfo"]
 
