@@ -16,6 +16,11 @@ jobs:
     strategy:
       matrix:
         mode: [leanback, mobile]
+    env:
+      STORE_FILE_BASE64: ${{ secrets.STORE_FILE_BASE64 }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
       - name: Checkout Code
@@ -37,16 +42,16 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up Keystore (Optional)
-        if: ${{ secrets.STORE_FILE_BASE64 != '' }}
+        if: ${{ env.STORE_FILE_BASE64 != '' }}
         run: |
-          echo "${{ secrets.STORE_FILE_BASE64 }}" | base64 --decode > app/release.jks
+          echo "${{ env.STORE_FILE_BASE64 }}" | base64 --decode > app/release.jks
           echo "storeFile=release.jks" >> local.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> local.properties
-          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> local.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "keyAlias=${{ env.KEY_ALIAS }}" >> local.properties
+          echo "storePassword=${{ env.STORE_PASSWORD }}" >> local.properties
+          echo "keyPassword=${{ env.KEY_PASSWORD }}" >> local.properties
 
       - name: Create Empty local.properties (Fallback if no signing)
-        if: ${{ secrets.STORE_FILE_BASE64 == '' }}
+        if: ${{ env.STORE_FILE_BASE64 == '' }}
         run: touch local.properties
 
       - name: Build with Gradle
