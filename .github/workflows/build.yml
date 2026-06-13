@@ -11,15 +11,15 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.task }} APK
+    name: Build ${{ matrix.mode }} APK
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - mode: leanback
-            task: Leanback
+            tasks: ":app:assembleLeanbackArm64_v8aRelease :app:assembleLeanbackArmeabi_v7aRelease"
           - mode: mobile
-            task: Mobile
+            tasks: ":app:assembleMobileArm64_v8aRelease :app:assembleMobileArmeabi_v7aRelease"
     env:
       STORE_FILE_BASE64: ${{ secrets.STORE_FILE_BASE64 }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -45,21 +45,26 @@ jobs:
       - name: Grant Execute Permission to gradlew
         run: chmod +x gradlew
 
-      - name: Set up Keystore (Optional)
-        if: ${{ env.STORE_FILE_BASE64 != '' }}
+      - name: Set up Keystore (Custom or Random fallback)
         run: |
-          echo "${{ env.STORE_FILE_BASE64 }}" | base64 --decode > app/release.jks
-          echo "storeFile=release.jks" >> local.properties
-          echo "keyAlias=${{ env.KEY_ALIAS }}" >> local.properties
-          echo "storePassword=${{ env.STORE_PASSWORD }}" >> local.properties
-          echo "keyPassword=${{ env.KEY_PASSWORD }}" >> local.properties
-
-      - name: Create Empty local.properties (Fallback if no signing)
-        if: ${{ env.STORE_FILE_BASE64 == '' }}
-        run: touch local.properties
+          if [ -n "${{ env.STORE_FILE_BASE64 }}" ]; then
+            echo "Using custom keystore from secrets..."
+            echo "${{ env.STORE_FILE_BASE64 }}" | base64 --decode > app/release.jks
+            echo "storeFile=release.jks" >> local.properties
+            echo "keyAlias=${{ env.KEY_ALIAS }}" >> local.properties
+            echo "storePassword=${{ env.STORE_PASSWORD }}" >> local.properties
+            echo "keyPassword=${{ env.KEY_PASSWORD }}" >> local.properties
+          else
+            echo "No keystore secrets found. Generating a random self-signed keystore..."
+            keytool -genkeypair -v -keystore app/release.jks -alias temp_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass temp_password -keypass temp_password -dname "CN=SelfSigned, O=CI, C=US"
+            echo "storeFile=release.jks" >> local.properties
+            echo "keyAlias=temp_alias" >> local.properties
+            echo "storePassword=temp_password" >> local.properties
+            echo "keyPassword=temp_password" >> local.properties
+          fi
 
       - name: Build with Gradle
-        run: ./gradlew :app:assemble${{ matrix.task }}Release
+        run: ./gradlew ${{ matrix.tasks }}
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
