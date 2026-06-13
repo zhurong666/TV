@@ -3,8 +3,11 @@ plugins {
 }
 
 def localProps = new Properties()
-rootProject.file('local.properties').withInputStream {
-    localProps.load(it)
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream {
+        localProps.load(it)
+    }
 }
 
 android {
@@ -51,10 +54,13 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(localProps['storeFile'])
-            keyAlias localProps['keyAlias']
-            keyPassword localProps['storePassword']
-            storePassword localProps['storePassword']
+            def storePath = localProps['storeFile']
+            if (storePath) {
+                storeFile file(storePath)
+                keyAlias localProps['keyAlias']
+                keyPassword localProps['storePassword']
+                storePassword localProps['storePassword']
+            }
         }
     }
 
@@ -62,7 +68,9 @@ android {
         release {
             minifyEnabled = true
             shrinkResources = true
-            signingConfig = signingConfigs.release
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig = signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'proguard-rules-media.pro'
         }
     }
