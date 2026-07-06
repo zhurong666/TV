@@ -51,6 +51,7 @@ jobs:
             https://github.com/fish2018/webhtv.git /tmp/webhtv
           cd /tmp/webhtv
           git sparse-checkout set third_party/maven
+          mkdir -p "$GITHUB_WORKSPACE/third_party"
           cp -r third_party/maven "$GITHUB_WORKSPACE/third_party/maven"
 
       - name: Patch settings.gradle for local Maven repo
